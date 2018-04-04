@@ -23,6 +23,15 @@ if [ -f /opt/nanoNodeMonitor/modules/config.php ]; then
 
 else
 
+  if [[ -z "${GOOGLE_DRIVE_FILE_ID}" ]]; then
+    echo "== Getting quick bootstrap ledger"
+	  apt install p7zip-full
+	  wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id='"$GOOGLE_DRIVE_FILE_ID"'' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$GOOGLE_DRIVE_FILE_ID" -O snap.7z && rm -rf /tmp/cookies.txt
+	  mv ~/RaiBlocks/data.ldb ~/RaiBlocks/data.ldb.bak
+	  7z x snap.7z -o~/RaiBlocks/
+	  sudo docker restart enn_nanonode_1
+  fi
+  
   echo "== Creating wallet"
   wallet=$(docker exec enn_nanonode_1 /usr/bin/rai_node --wallet_create)
 
